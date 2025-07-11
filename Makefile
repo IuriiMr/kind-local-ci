@@ -83,5 +83,5 @@ get-control-plane-ip:
 
 set-harbor-url:
 	@IP=$$(docker inspect -f '{{range $$k, $$v := .NetworkSettings.Networks}}{{if eq $$k "harbor-kind-local_gitlab_net"}}{{$$v.IPAddress}}{{end}}{{end}}' harbor-control-plane); \
-	echo "HARBOR_URL=http://$$IP:30003" > .env; \
-	echo "✅ HARBOR_URL=http://$$IP:30003 written to .env"
+	echo "HARBOR_URL=$$IP:30003" > .env; \
+	echo "✅ HARBOR_URL=$$IP:30003 written to .env"

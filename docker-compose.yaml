@@ -20,7 +20,7 @@ services:
     networks:
       - gitlab_net
 
-  gitlab-runner:
+  runner:
     image: gitlab/gitlab-runner:latest
     container_name: runner
     restart: always

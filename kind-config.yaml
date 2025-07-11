@@ -4,5 +4,5 @@ name: harbor
 nodes:
   - role: control-plane
     extraPortMappings:
-      - containerPort: 30003  # Harbor HTTP
+      - containerPort: 30003
         hostPort: 30003
