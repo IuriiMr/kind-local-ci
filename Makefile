@@ -23,21 +23,23 @@ gitlab-up:
 	docker compose up -d
 
 gitlab-down:
-	docker compose down -v
+	docker compose down
 
-fetch-token:
-	bash get-runner-token.sh
+wait:
+	bash wait-gitlab.sh
 
 runner-up:
-	TOKEN=$$(bash get-runner-token.sh | grep REGISTRATION_TOKEN | cut -d '=' -f 2) && \
-	helm repo add gitlab https://charts.gitlab.io && \
-	helm repo update && \
-	kubectl create namespace gitlab-runner || true && \
-	helm upgrade --install gitlab-runner gitlab/gitlab-runner \
-		--namespace gitlab-runner \
-		--set gitlabUrl=http://host.docker.internal:8080/ \
-		--set runnerRegistrationToken=$$TOKEN \
-		--set rbac.create=true
+	TOKEN=$(bash get-token.sh | grep REGISTRATION_TOKEN | cut -d '=' -f 2) && \
+    helm repo add gitlab https://charts.gitlab.io && \
+    helm repo update && \
+    kubectl create namespace gitlab-runner || true && \
+    helm upgrade --install gitlab-runner gitlab/gitlab-runner \
+      --namespace gitlab-runner \
+      --set gitlabUrl=http://host.docker.internal:8080/ \
+      --set runnerRegistrationToken=$TOKEN \
+      --set rbac.create=true \
+      --set serviceAccount.create=true \
+      --set serviceAccount.name=gitlab-runner
 
 runner-down:
 	helm uninstall gitlab-runner -n gitlab-runner || true

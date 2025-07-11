@@ -2,7 +2,7 @@ services:
   gitlab:
     image: gitlab/gitlab-ce:latest
     container_name: gitlab
-    hostname: gitlab.local
+    hostname: host.docker.internal
     restart: always
     ports:
       - "8080:80"
@@ -10,13 +10,43 @@ services:
     environment:
       GITLAB_ROOT_EMAIL: root@local
       GITLAB_ROOT_PASSWORD: CakeEggMilk11!@
-      EXTERNAL_URL: http://gitlab.local
+      EXTERNAL_URL: http://host.docker.internal:8080
     volumes:
       - gitlab_config:/etc/gitlab
       - gitlab_logs:/var/log/gitlab
       - gitlab_data:/var/opt/gitlab
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab
+      - dind
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - gitlab_runner_config:/etc/gitlab-runner
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  dind:
+    image: docker:dind
+    container_name: gitlab-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - dind_storage:/var/lib/docker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   gitlab_config:
   gitlab_logs:
   gitlab_data:
+  gitlab_runner_config:
+  dind_storage:
