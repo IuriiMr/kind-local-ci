@@ -25,22 +25,63 @@ gitlab-up:
 gitlab-down:
 	docker compose down
 
+init-runner: wait register-runner
+
 wait:
-	bash wait-gitlab.sh
+	@echo "[INFO] Waiting for GitLab container 'gitlab' to become healthy..."
+	@max=60; \
+	interval=5; \
+	for i in $$(seq 1 $$max); do \
+		status=$$(docker inspect --format='{{.State.Health.Status}}' gitlab 2>/dev/null); \
+		if [ "$$status" = "healthy" ]; then \
+			echo "[INFO] GitLab is healthy."; \
+			exit 0; \
+		fi; \
+		echo -n "."; \
+		sleep $$interval; \
+	done; \
+	echo ""; \
+	echo "[ERROR] Timeout waiting for GitLab container to become healthy."; \
+	exit 1
 
-runner-up:
-	TOKEN=$(bash get-token.sh | grep REGISTRATION_TOKEN | cut -d '=' -f 2) && \
-    helm repo add gitlab https://charts.gitlab.io && \
-    helm repo update && \
-    kubectl create namespace gitlab-runner || true && \
-    helm upgrade --install gitlab-runner gitlab/gitlab-runner \
-      --namespace gitlab-runner \
-      --set gitlabUrl=http://host.docker.internal:8080/ \
-      --set runnerRegistrationToken=$TOKEN \
-      --set rbac.create=true \
-      --set serviceAccount.create=true \
-      --set serviceAccount.name=gitlab-runner
 
-runner-down:
-	helm uninstall gitlab-runner -n gitlab-runner || true
-	kubectl delete namespace gitlab-runner || true
+register-runner:
+	@echo "🔐 Fetching GitLab registration token..."
+	$(eval TOKEN := $(shell docker exec -it gitlab gitlab-rails runner -e production "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token" | tr -d '\r'))
+
+	@echo "🔧 Registering runner in container..."
+	docker exec -it runner gitlab-runner register \
+		--non-interactive \
+		--url "http://gitlab/" \
+		--registration-token "$(TOKEN)" \
+		--executor "docker" \
+		--docker-host "tcp://dind:2375" \
+		--docker-image "docker:latest" \
+		--description "dind-runner" \
+		--docker-privileged \
+		--docker-volumes "/cache" \
+		--docker-network-mode "host" \
+		--docker-extra-hosts "host.docker.internal:host-gateway"
+
+
+	@echo "✅ Runner registered successfully."
+
+unregister-runner:
+	docker exec -it runner gitlab-runner unregister --all-runners
+
+
+GITLAB_NET=gitlab_net
+
+init-network: connect-control-plane set-harbor-url
+
+connect-control-plane:
+	@docker network connect $(GITLAB_NET) harbor-control-plane 2>/dev/null || echo "Already connected"
+
+get-control-plane-ip:
+	@IP=$$(docker inspect -f '{{range $$k, $$v := .NetworkSettings.Networks}}{{if eq $$k "harbor-kind-local_gitlab_net"}}{{$$v.IPAddress}}{{end}}{{end}}' harbor-control-plane); \
+	echo "Control plane IP on harbor-kind-local_gitlab_net: $$IP"
+
+set-harbor-url:
+	@IP=$$(docker inspect -f '{{range $$k, $$v := .NetworkSettings.Networks}}{{if eq $$k "harbor-kind-local_gitlab_net"}}{{$$v.IPAddress}}{{end}}{{end}}' harbor-control-plane); \
+	echo "HARBOR_URL=http://$$IP:30003" > .env; \
+	echo "✅ HARBOR_URL=http://$$IP:30003 written to .env"

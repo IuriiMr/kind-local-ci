@@ -2,40 +2,47 @@ services:
   gitlab:
     image: gitlab/gitlab-ce:latest
     container_name: gitlab
-    hostname: host.docker.internal
+    hostname: gitlab
     restart: always
     ports:
-      - "8080:80"
-      - "8929:22"
+      - "80:80"
+      - "8022:22"
     environment:
       GITLAB_ROOT_EMAIL: root@local
       GITLAB_ROOT_PASSWORD: CakeEggMilk11!@
-      EXTERNAL_URL: http://host.docker.internal:8080
+      EXTERNAL_URL: http://gitlab
     volumes:
       - gitlab_config:/etc/gitlab
       - gitlab_logs:/var/log/gitlab
       - gitlab_data:/var/opt/gitlab
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - gitlab_net
 
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
-    container_name: gitlab-runner
+    container_name: runner
     restart: always
     depends_on:
       - gitlab
       - dind
     environment:
       DOCKER_TLS_CERTDIR: ""
+      DOCKER_HOST: tcp://dind:2375
+#      DOCKER_DRIVER: overlay2
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - gitlab_runner_config:/etc/gitlab-runner
+#      - /var/run/docker.sock:/var/run/docker.sock
+      - runner_config:/etc/gitlab-runner
     extra_hosts:
       - "host.docker.internal:host-gateway"
+#      - "gitlab:host-gateway"
+    networks:
+      - gitlab_net
 
   dind:
     image: docker:dind
-    container_name: gitlab-dind
+    container_name: dind
     privileged: true
     environment:
       DOCKER_TLS_CERTDIR: ""
@@ -43,10 +50,18 @@ services:
       - dind_storage:/var/lib/docker
     extra_hosts:
       - "host.docker.internal:host-gateway"
+#      - "gitlab:host-gateway"
+    networks:
+      - gitlab_net
 
 volumes:
   gitlab_config:
   gitlab_logs:
   gitlab_data:
-  gitlab_runner_config:
+  runner_config:
   dind_storage:
+
+networks:
+  gitlab_net:
+    name: gitlab_net
+    driver: bridge
