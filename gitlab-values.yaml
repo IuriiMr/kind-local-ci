@@ -1,0 +1,42 @@
+#webservice:
+#  service:
+#    type: NodePort
+#    nodePort: 30800
+
+gitlab:
+  gitlab-shell:
+    service:
+      type: NodePort
+      nodePort: 30222
+  webservice:
+    service:
+    name: http
+    ports:
+      http:
+        nodePort: 30800
+        port: 8080
+global:
+  hosts:
+    domain: "localhost"
+    externalIP: "127.0.0.1"
+  ingress:
+    configureCertmanager: false
+    enabled: false
+  sshPort: 30222
+  gitlab:
+    initialRootPassword: "CakeEggMilk11!@"
+    initialRootEmail: "root@local"
+    externalUrl: "http://localhost:30800"
+
+nginx-ingress:
+  enabled: false
+certmanager:
+  install: false
+prometheus:
+  install: false
+metrics:
+  enabled: false
+monitoring:
+  enabled: false
+
+

@@ -1,8 +1,13 @@
+# kind-config.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-name: harbor
+name: local-ci
 nodes:
   - role: control-plane
     extraPortMappings:
-      - containerPort: 30003
+      - containerPort: 30003  # Harbor UI
         hostPort: 30003
+      - containerPort: 30800  # GitLab UI
+        hostPort: 30800
+      - containerPort: 30222  # GitLab SSH
+        hostPort: 30222
