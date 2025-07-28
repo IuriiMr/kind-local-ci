@@ -1,42 +1,159 @@
-#webservice:
-#  service:
-#    type: NodePort
-#    nodePort: 30800
+## Set host domain name.
+## Disable SSL altogether
+## Disable certmanager.
+## Configure global shell port for correct clone URL in UI.
+#global:
+#  hosts:
+#    domain: 192.168.4.112.nip.io
+#    https: false
+#  ingress:
+#    configureCertmanager: false
+#    tls:
+#      enabled: false
+#  shell:
+#    port: 32022
+#  # Specify NodePort for HTTP on NGINX
+#  nginx-ingress:
+#    controller:
+#      service:
+#        nodePorts:
+#          # http port value below must match the KinD config file:
+#          #   nodes[0].extraPortMappings[0].containerPort
+#          http: 32080
+#  gitlab:
+#    initialRootPassword: "CakeEggMilk11!@"
+#    initialRootEmail: "root@local"
+##    externalUrl: "http://192.168.4.112.nip.io"
+#
+#
+## Don't use certmanager, we'll self-sign or use http
+#installCertmanager: false
+#
+## Specify NodePorts for NGINX and reduce replicas to 1
+#nginx-ingress:
+#  controller:
+#    replicaCount: 1
+#    minAavailable: 1
+#    service:
+#      type: NodePort
+#      nodePorts:
+#        # gitlab-shell port value below must match the KinD config file:
+#        #   nodes[0].extraPortMappings[1].containerPort
+#        gitlab-shell: 32022
+#
+## Allow privileged runners for Docker-in-Docker pipelines
+#gitlab-runner:
+#  runners:
+#    privileged: true
+#
+## Disable services that are not likely needed for local testing.
+## Feel free to adjust these lines if services are indeed needed.
+#prometheus:
+#  install: false
+#registry:
+#  hpa:
+#    minReplicas: 1
+#    maxReplicas: 1
+#gitlab:
+#  gitlab-shell:
+#    minReplicas: 1
+#    maxReplicas: 1
+#  gitlab-exporter:
+#    enabled: false
+#  webservice:
+#    minReplicas: 1
+#    maxReplicas: 1
+#
+#
+#
+##global:
+##  hosts:
+##    domain: "localhost"
+##    externalIP: "127.0.0.1"
+##  ingress:
+##    configureCertmanager: false
+##    enabled: false
+##  sshPort: 30222
+##  gitlab:
+##    initialRootPassword: "CakeEggMilk11!@"
+##    initialRootEmail: "root@local"
+##    externalUrl: "http://localhost:30800"
+##
+##nginx-ingress:
+##  enabled: false
+##certmanager:
+##  install: false
+##prometheus:
+##  install: false
+##metrics:
+##  enabled: false
+##monitoring:
+##  enabled: false
+##
+##
 
-gitlab:
-  gitlab-shell:
-    service:
-      type: NodePort
-      nodePort: 30222
-  webservice:
-    service:
-    name: http
-    ports:
-      http:
-        nodePort: 30800
-        port: 8080
+
+
+# Set host domain name.
+# Disable certmanager.
+# Configure global shell port for correct clone URL in UI.
 global:
+  # Disable SSL altogether
   hosts:
-    domain: "localhost"
-    externalIP: "127.0.0.1"
+    https: false
+    domain: 192.168.4.112.nip.io
+
+  # hosts:
+  # domain: (your host IP).nip.io
   ingress:
     configureCertmanager: false
-    enabled: false
-  sshPort: 30222
-  gitlab:
-    initialRootPassword: "CakeEggMilk11!@"
-    initialRootEmail: "root@local"
-    externalUrl: "http://localhost:30800"
+    tls:
+      enabled: false
 
+  shell:
+    port: 32022
+
+# Don't use certmanager, we'll self-sign or use http
+installCertmanager: false
+
+# Specify NodePorts for NGINX and reduce replicas to 1
 nginx-ingress:
-  enabled: false
-certmanager:
-  install: false
+  controller:
+    replicaCount: 1
+    minAavailable: 1
+    service:
+      type: NodePort
+      nodePorts:
+        # gitlab-shell port value below must match the KinD config file:
+        #   nodes[0].extraPortMappings[1].containerPort
+        gitlab-shell: 32022
+        http: 32080
+
+# Allow privileged runners for Docker-in-Docker pipelines
+gitlab-runner:
+  runners:
+    privileged: true
+
+# Disable services that are not likely needed for local testing.
+# Feel free to adjust these lines if services are indeed needed.
 prometheus:
   install: false
-metrics:
-  enabled: false
-monitoring:
-  enabled: false
+registry:
+  hpa:
+    minReplicas: 1
+    maxReplicas: 1
+gitlab:
+  initialRootPassword: "CakeEggMilk12!@"
+  initialRootEmail: "root@local"
+  externalUrl: "http://gitlab.192.168.4.112.nip.io"
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1
+  gitlab-exporter:
+    enabled: false
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+
 
 
