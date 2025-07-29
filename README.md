@@ -26,3 +26,12 @@ helm upgrade --install gitlab gitlab/gitlab \
 -f gitlab-values.yaml
 
 [//]: # (--set global.hosts.domain=192.168.4.112.nip.io \)
+
+
+kind create cluster --config kind-config.yaml \
+&& kubectl create namespace gitlab \
+&& kubectl apply -f kind-secrets.yaml \
+--namespace gitlab \
+&& helm upgrade --install gitlab gitlab/gitlab \
+--namespace gitlab \
+-f gitlab-values.yaml
