@@ -1,21 +1,6 @@
-#kind: Cluster
-#apiVersion: kind.x-k8s.io/v1alpha4
-##name: local-ci
-#nodes:
-#  - role: control-plane
-#    extraPortMappings:
-#    - containerPort: 30003  # Harbor UI
-#      hostPort: 30003
-#      listenAddress: "0.0.0.0"
-#    - containerPort: 32080  # GitLab UI
-#      hostPort: 80
-#      listenAddress: "0.0.0.0"
-#    - containerPort: 32022  # GitLab SSH
-#      hostPort: 32022
-#      listenAddress: "0.0.0.0"
-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+name: kind-local-ci
 nodes:
   - role: control-plane
     extraPortMappings:

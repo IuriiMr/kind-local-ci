@@ -1,12 +1,20 @@
 
-## Install gitlab
+## Deploy cluster kind with GitLab and Harbor  
 
-kind create cluster --config kind-config.yaml \
-&& kubectl create namespace gitlab \
-&& kubectl create namespace harbor \
-&& kubectl apply -f kind-secrets.yaml --namespace gitlab \
-&& helm upgrade --install gitlab gitlab/gitlab \
---namespace gitlab -f gitlab-values.yaml \
-&& helm upgrade --install harbor harbor/harbor \
---namespace harbor -f harbor-values.yaml
+make all
 
+## Clean 
+
+make delete
+
+
+
+### GitLab
+
+Login: root
+Password: CakeEggMilk
+
+### Harbor
+
+Login: admin
+Password: Harbor12345
