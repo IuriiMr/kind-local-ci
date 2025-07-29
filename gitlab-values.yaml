@@ -1,18 +1,11 @@
 global:
-#  initialRootPassword:
-#    secret: gitlab-root-password
-#    key: password
-#  initialRootEmail: "root@local"
-#  externalUrl: "http://gitlab.192.168.4.112.nip.io"
   hosts:
     https: false
     domain: 192.168.4.112.nip.io
-
   ingress:
     configureCertmanager: false
     tls:
       enabled: false
-
   shell:
     port: 32022
 
@@ -34,18 +27,13 @@ gitlab-runner:
 
 prometheus:
   install: false
+
 registry:
   hpa:
     minReplicas: 1
     maxReplicas: 1
+
 gitlab:
-#  initialRootPassword: "CakeEggMilk12!@"
-#  initialRootEmail: "root@local"
-#  externalUrl: "http://192.168.4.112.nip.io"
-#  migrations:
-#    initialRootPassword:
-#      secret: gitlab-root-password
-#      key: password
   gitlab-shell:
     minReplicas: 1
     maxReplicas: 1
